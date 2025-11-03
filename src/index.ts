@@ -11,8 +11,12 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
+import { getAccessToken } from './strava-auth';
+
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
-		return new Response('Hello World!');
+		const accessToken = await getAccessToken();
+
+		return new Response('Your Strava access token is: ' + accessToken);
 	},
 } satisfies ExportedHandler<Env>;
