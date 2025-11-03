@@ -6,6 +6,7 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "tcc-army-challenge-strava-sync",
 	"main": "src/index.ts",
+	"compatibility_flags": ["nodejs_compat"],
 	"compatibility_date": "2025-11-01",
 	"observability": {
 		"enabled": true
