@@ -63,7 +63,7 @@ export const fetchNewClubActivities = async () => {
 			console.count(`Checking activity: ${activity.name}`)
 			if (isEqual(activity, lastActivity)) {
 				console.log("Reached last recorded activity. Stopping fetch.")
-				
+
 				if (clubActivitiesList.length === 0) {
 					console.log("No new activities found.")
 					return []
@@ -73,7 +73,11 @@ export const fetchNewClubActivities = async () => {
 					"last_recorded_activity",
 					JSON.stringify(clubActivitiesList[0]),
 				)
-				console.log("Recorded last recorded activity.")
+				await env.TCC_ARMY_CHALLENGE_STRAVA_SYNC.put(
+					"last_synced_at",
+					DateTime.now().toISO(),
+				)
+				console.log("Recorded last recorded activity and last synced at.")
 
 				return clubActivitiesList
 			}
