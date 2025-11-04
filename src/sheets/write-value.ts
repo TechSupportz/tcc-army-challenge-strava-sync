@@ -64,15 +64,14 @@ export const writeMileageToSheet = async (
 		const rowIndex = i + 1
 		const cell = sheet.getCell(rowIndex, dateColumnIndex)
 
-		// // Get existing value to add to it (in case there's already mileage)
-		// const existingValue = parseFloat(cell.value?.toString() || "0")
-		// const newValue = existingValue + distance
+		const existingValue = parseFloat(cell.value?.toString() || "0")
+		const updatedDistance = existingValue + distance
 
-		cell.value = parseFloat(distance.toFixed(2))
+		cell.value = parseFloat(updatedDistance.toFixed(2))
 
 		updatedCount++
 		console.log(
-			`Updated ${nameInSheets}: ${distance.toFixed(2)} km for column ${dateLabel} at row ${
+			`Updated ${nameInSheets}: ${updatedDistance.toFixed(2)} km for column ${dateLabel} at row ${
 				rowIndex + 1
 			}`,
 		)
