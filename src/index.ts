@@ -15,14 +15,12 @@ import { DateTime } from "luxon"
 import { getGoogleSheetData } from "./auth/google-sheet-auth"
 import { getAccessToken } from "./auth/strava-auth"
 import { getRowLabelFromDate } from "./date-mapping"
+import { fetchNewClubActivities } from "./strava/fetch-club-activities"
 
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
 		const currentDate = DateTime.now().startOf("day")
 		const accessToken = await getAccessToken()
-
-		const currentDateMapping = getRowLabelFromDate(currentDate)
-		console.log(">>> Current Date Mapping:", currentDateMapping)
 
 		const armyMarathonDocData = getGoogleSheetData(env, env.GOOGLE_SHEETS_ID)
 		await armyMarathonDocData.loadInfo()
@@ -30,17 +28,15 @@ export default {
 		const sheet = armyMarathonDocData.sheetsByIndex[0]
 		const rows = await sheet.getRows()
 
+		const currentDateMapping = getRowLabelFromDate(currentDate)
 		const nameList = rows.map(row => row.get("NAME"))
+		const newClubActivities = await fetchNewClubActivities()
 
 		console.log(env.STRAVA_BASE_URL)
 
-		return new Response(
-			JSON.stringify({
-				currentDate: currentDate.toISO(),
-				currentDateMapping,
-				accessToken,
-			}),
-			{ status: 200, headers: { "Content-Type": "application/json" } },
-		)
+		return new Response(JSON.stringify(newClubActivities), {
+			status: 200,
+			headers: { "Content-Type": "application/json" },
+		})
 	},
 } satisfies ExportedHandler<Env>

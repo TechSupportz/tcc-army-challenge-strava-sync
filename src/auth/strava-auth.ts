@@ -1,5 +1,6 @@
 import { env } from "cloudflare:workers"
 import { KV_ACCESS_TOKEN_KEY, KV_EXPIRES_AT_KEY, KV_REFRESH_TOKEN_KEY } from "../kv-binding-keys"
+import { DateTime } from "luxon"
 
 interface StravaTokenResponse {
 	access_token: string
@@ -76,7 +77,7 @@ export async function getAccessToken(): Promise<string> {
 	// If we have a token and it's not expired, return it
 	if (accessToken && expiresAtStr) {
 		const expiresAt = parseInt(expiresAtStr, 10)
-		const now = Math.floor(Date.now() / 1000)
+		const now = Math.floor(DateTime.now().toSeconds())
 
 		// Add 5 minute buffer before expiration
 		if (now < expiresAt - 300) {
