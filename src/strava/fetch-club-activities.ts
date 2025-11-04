@@ -60,7 +60,6 @@ export const fetchNewClubActivities = async () => {
 		}
 
 		for (const activity of activities) {
-			console.count(`Checking activity: ${activity.name}`)
 			if (isEqual(activity, lastActivity)) {
 				console.log("Reached last recorded activity. Stopping fetch.")
 

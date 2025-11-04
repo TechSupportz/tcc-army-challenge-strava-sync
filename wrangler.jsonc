@@ -18,6 +18,16 @@
 		}
 	],
 	/**
+	 * Cron Triggers
+	 * Run scheduled tasks at specific times
+	 * https://developers.cloudflare.com/workers/configuration/cron-triggers/
+	 */
+	"triggers": {
+		"crons": [
+			"30 15 * * *" // 23:30 SGT (15:30 UTC) - Daily sync of Strava activities
+		]
+	},
+	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
 	 */

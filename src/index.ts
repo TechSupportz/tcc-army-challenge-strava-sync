@@ -13,30 +13,69 @@
 
 import { DateTime } from "luxon"
 import { getGoogleSheetData } from "./auth/google-sheet-auth"
-import { getAccessToken } from "./auth/strava-auth"
-import { getRowLabelFromDate } from "./date-mapping"
+import { calculateMileage } from "./sheets/calculate-mileage"
+import { getRowLabelFromDate } from "./sheets/date-mapping"
+import { writeMileageToSheet } from "./sheets/write-value"
 import { fetchNewClubActivities } from "./strava/fetch-club-activities"
+
+async function syncStravaActivities(env: Env) {
+	const currentDate = DateTime.now().startOf("day")
+
+	const armyMarathonDocData = getGoogleSheetData(env, env.GOOGLE_SHEETS_ID)
+	await armyMarathonDocData.loadInfo()
+
+	const sheet = armyMarathonDocData.sheetsByIndex[0]
+	const rows = await sheet.getRows()
+
+	const currentDateLabel = getRowLabelFromDate(currentDate)
+	const nameList = rows.map(row => row.get("NAME"))
+	const newClubActivities = await fetchNewClubActivities()
+	const calculatedMileage = calculateMileage(newClubActivities)
+
+	await writeMileageToSheet(sheet, rows, calculatedMileage, currentDateLabel, nameList)
+
+	return {
+		success: true,
+		updated: { count: Object.keys(calculatedMileage).length, data: calculatedMileage },
+		date: currentDateLabel,
+		timestamp: DateTime.now().toISO(),
+	}
+}
 
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
-		const currentDate = DateTime.now().startOf("day")
-		const accessToken = await getAccessToken()
+		try {
+			const result = await syncStravaActivities(env)
 
-		const armyMarathonDocData = getGoogleSheetData(env, env.GOOGLE_SHEETS_ID)
-		await armyMarathonDocData.loadInfo()
+			return new Response(JSON.stringify(result), {
+				status: 200,
+				headers: { "Content-Type": "application/json" },
+			})
+		} catch (error) {
+			console.error("Error syncing Strava activities:", error)
 
-		const sheet = armyMarathonDocData.sheetsByIndex[0]
-		const rows = await sheet.getRows()
+			return new Response(
+				JSON.stringify({
+					success: false,
+					error: error instanceof Error ? error.message : "Unknown error",
+				}),
+				{
+					status: 500,
+					headers: { "Content-Type": "application/json" },
+				},
+			)
+		}
+	},
 
-		const currentDateMapping = getRowLabelFromDate(currentDate)
-		const nameList = rows.map(row => row.get("NAME"))
-		const newClubActivities = await fetchNewClubActivities()
+	async scheduled(event, env, ctx): Promise<void> {
+		console.log("Scheduled task triggered at:", new Date(event.scheduledTime).toISOString())
 
-		console.log(env.STRAVA_BASE_URL)
-
-		return new Response(JSON.stringify(newClubActivities), {
-			status: 200,
-			headers: { "Content-Type": "application/json" },
-		})
+		try {
+			const result = await syncStravaActivities(env)
+			console.log("Scheduled sync completed successfully:", result)
+		} catch (error) {
+			console.error("Error in scheduled sync:", error)
+			throw error
+		}
 	},
 } satisfies ExportedHandler<Env>
