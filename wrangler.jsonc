@@ -16,7 +16,7 @@
 			"binding": "TCC_ARMY_CHALLENGE_STRAVA_SYNC",
 			"id": "008c3b55902c4579b6268d21adbedcba"
 		}
-	]
+	],
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
@@ -32,7 +32,7 @@
 	 * Environment Variables
 	 * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
 	 */
-	// "vars": { "MY_VARIABLE": "production_value" }
+	"vars": { "STRAVA_BASE_URL": "https://www.strava.com/api/v3" }
 	/**
 	 * Note: Use secrets to store sensitive data.
 	 * https://developers.cloudflare.com/workers/configuration/secrets/
