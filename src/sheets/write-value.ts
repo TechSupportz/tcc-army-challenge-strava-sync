@@ -6,6 +6,7 @@ import {
 import { nameMappings } from "../name-mappings"
 import { env } from "cloudflare:workers"
 import { KV_LAST_SYNCED_AT_KEY } from "../kv-binding-keys"
+import { DateTime } from "luxon"
 
 /**
  * Write mileage values to Google Sheets for each person using cell-based updates
@@ -80,8 +81,8 @@ export const writeMileageToSheet = async (
 	}
 
 	const lastSyncedAt = await env.TCC_ARMY_CHALLENGE_STRAVA_SYNC.get(KV_LAST_SYNCED_AT_KEY)
-	if (lastSyncedAt) sheet.getCellByA1("A54").value = lastSyncedAt
-	
+	if (lastSyncedAt) sheet.getCellByA1("A54").value = DateTime.fromISO(lastSyncedAt).toFormat("DDDD TT")
+
 	await sheet.saveUpdatedCells()
 
 	console.log(`Successfully updated ${updatedCount} cells in column ${dateLabel}`)
