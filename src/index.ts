@@ -17,6 +17,7 @@ import { calculateMileage } from "./sheets/calculate-mileage"
 import { getRowLabelFromDate } from "./sheets/date-mapping"
 import { writeMileageToSheet } from "./sheets/write-value"
 import { fetchNewClubActivities } from "./strava/fetch-club-activities"
+import { generateManualRefreshHtml } from "./generate-manual-refresh-html"
 
 async function syncStravaActivities(env: Env) {
 	const currentDate = DateTime.now().startOf("day")
@@ -47,21 +48,21 @@ export default {
 		try {
 			const result = await syncStravaActivities(env)
 
-			return new Response(JSON.stringify(result), {
+			return new Response(generateManualRefreshHtml(result.updated.data), {
 				status: 200,
-				headers: { "Content-Type": "application/json" },
+				headers: { "Content-Type": "text/html;charset=UTF-8" },
 			})
 		} catch (error) {
 			console.error("Error syncing Strava activities:", error)
 
 			return new Response(
-				JSON.stringify({
-					success: false,
-					error: error instanceof Error ? error.message : "Unknown error",
-				}),
+				generateManualRefreshHtml(
+					[],
+					error instanceof Error ? error.message : String(error),
+				),
 				{
 					status: 500,
-					headers: { "Content-Type": "application/json" },
+					headers: { "Content-Type": "text/html;charset=UTF-8" },
 				},
 			)
 		}

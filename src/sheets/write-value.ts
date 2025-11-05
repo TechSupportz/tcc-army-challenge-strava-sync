@@ -4,6 +4,8 @@ import {
 	GoogleSpreadsheetWorksheet,
 } from "google-spreadsheet"
 import { nameMappings } from "../name-mappings"
+import { env } from "cloudflare:workers"
+import { KV_LAST_SYNCED_AT_KEY } from "../kv-binding-keys"
 
 /**
  * Write mileage values to Google Sheets for each person using cell-based updates
@@ -71,12 +73,15 @@ export const writeMileageToSheet = async (
 
 		updatedCount++
 		console.log(
-			`Updated ${nameInSheets}: ${updatedDistance.toFixed(2)} km for column ${dateLabel} at row ${
-				rowIndex + 1
-			}`,
+			`Updated ${nameInSheets}: ${updatedDistance.toFixed(
+				2,
+			)} km for column ${dateLabel} at row ${rowIndex + 1}`,
 		)
 	}
 
+	const lastSyncedAt = await env.TCC_ARMY_CHALLENGE_STRAVA_SYNC.get(KV_LAST_SYNCED_AT_KEY)
+	if (lastSyncedAt) sheet.getCellByA1("A54").value = lastSyncedAt
+	
 	await sheet.saveUpdatedCells()
 
 	console.log(`Successfully updated ${updatedCount} cells in column ${dateLabel}`)
