@@ -30,7 +30,7 @@ export const getStravaTokens = async (): Promise<StravaTokens> => {
 	}
 
 	// Request new tokens from Strava
-	const response = await fetch(`${env.STRAVA_BASE_URL}/api/v3/oauth/token`, {
+	const response = await fetch(`${env.STRAVA_BASE_URL}/oauth/token`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/x-www-form-urlencoded",
