@@ -81,7 +81,10 @@ export const writeMileageToSheet = async (
 	}
 
 	const lastSyncedAt = await env.TCC_ARMY_CHALLENGE_STRAVA_SYNC.get(KV_LAST_SYNCED_AT_KEY)
-	if (lastSyncedAt) sheet.getCellByA1("A54").value = DateTime.fromISO(lastSyncedAt).toFormat("DDDD TT")
+	if (lastSyncedAt)
+		sheet.getCellByA1("A54").value = DateTime.fromISO(lastSyncedAt, {
+			zone: "Asia/Singapore",
+		}).toFormat("DDDD TT")
 
 	await sheet.saveUpdatedCells()
 
