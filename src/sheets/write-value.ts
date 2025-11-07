@@ -67,7 +67,12 @@ export const writeMileageToSheet = async (
 		const rowIndex = i + 1
 		const cell = sheet.getCell(rowIndex, dateColumnIndex)
 
-		const existingValue = parseFloat(cell.value?.toString() || "0")
+		let existingValue = parseFloat(cell.value?.toString() || "0")
+
+		if (isNaN(existingValue)) {
+			existingValue = 0
+		}
+
 		const updatedDistance = existingValue + distance
 
 		cell.value = parseFloat(updatedDistance.toFixed(2))
